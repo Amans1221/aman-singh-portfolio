@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aman Singh — Cloud-Native Developer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0F1B2E;
+    --ink-2:#16243B;
+    --ink-3:#1D2E48;
+    --paper:#EDE6D8;
+    --paper-dim:#A9AFBB;
+    --line:#2A3B57;
+    --amber:#C9832E;
+    --amber-soft:rgba(201,131,46,0.18);
+    --teal:#6C9B92;
+    --radius:2px;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Inter',sans-serif;
+    line-height:1.6;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:48px 48px;
+    background-attachment:fixed;
+    background-position:-1px -1px;
+    position:relative;
+  }
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background:radial-gradient(ellipse 80% 60% at 50% 0%, rgba(15,27,46,0) 0%, var(--ink) 78%);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .wrap{ position:relative; z-index:1; }
+
+  h1,h2,h3{ font-family:'Fraunces',serif; font-weight:500; letter-spacing:-0.01em; }
+  .mono{ font-family:'JetBrains Mono',monospace; }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--amber);
+  }
+
+  a{ color:inherit; }
+  ::selection{ background:var(--amber-soft); color:var(--paper); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important; }
+  }
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 6vw;
+    background:rgba(15,27,46,0.86);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  nav .mark{ font-family:'Fraunces',serif; font-size:19px; }
+  nav .mark span{ color:var(--amber); }
+  nav ul{ list-style:none; display:flex; gap:28px; }
+  nav a{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px; letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--paper-dim);
+    text-decoration:none;
+    transition:color .2s ease;
+    padding:4px 0;
+    border-bottom:1px solid transparent;
+  }
+  nav a:hover, nav a:focus-visible{ color:var(--amber); border-color:var(--amber); }
+  .nav-links{ display:flex; }
+  @media (max-width:760px){ .nav-links{ display:none; } }
+
+  section{ padding:96px 6vw; max-width:1180px; margin:0 auto; }
+  section + section{ border-top:1px solid var(--line); }
+
+  /* ---------- HERO ---------- */
+  .hero{ padding-top:72px; padding-bottom:64px; }
+  .hero-top{ display:flex; flex-wrap:wrap; gap:40px; justify-content:space-between; align-items:flex-end; margin-bottom:56px; }
+  .hero h1{ font-size:clamp(38px,6vw,66px); line-height:1.04; max-width:14ch; }
+  .hero h1 em{ font-style:italic; color:var(--amber); }
+  .role-line{ margin-top:18px; font-size:17px; color:var(--paper-dim); max-width:46ch; }
+  .hero-meta{ font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--paper-dim); display:flex; flex-direction:column; gap:6px; text-align:right; }
+  .hero-meta a{ text-decoration:none; }
+  .hero-meta a:hover{ color:var(--amber); }
+  @media (max-width:640px){ .hero-meta{ text-align:left; } }
+
+  /* pipeline diagram */
+  .pipeline-frame{
+    border:1px solid var(--line);
+    background:var(--ink-2);
+    padding:28px 24px 20px;
+    position:relative;
+  }
+  .pipeline-frame .cap{
+    display:flex; justify-content:space-between;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px; color:var(--paper-dim);
+    letter-spacing:0.08em; text-transform:uppercase;
+    margin-bottom:16px;
+  }
+  .pipeline-frame .cap .live{ color:var(--teal); }
+  .pipeline-frame .cap .live::before{ content:"● "; }
+  svg.pipeline{ width:100%; height:auto; display:block; }
+  .node-label{ font-family:'JetBrains Mono',monospace; font-size:10.5px; fill:var(--paper-dim); }
+  .node-sub{ font-family:'JetBrains Mono',monospace; font-size:9px; fill:var(--paper-dim); opacity:.7;}
+  .node-circle{ fill:var(--ink-3); stroke:var(--line); stroke-width:1.5; transition:stroke .3s ease, fill .3s ease; }
+  .node-circle.active{ stroke:var(--amber); fill:var(--amber-soft); }
+  .edge{ stroke:var(--line); stroke-width:1.5; fill:none; }
+  .packet{ fill:var(--amber); filter:drop-shadow(0 0 6px rgba(201,131,46,0.8)); }
+
+  /* ---------- SUMMARY / STATS ---------- */
+  .summary-grid{ display:grid; grid-template-columns:1.3fr 1fr; gap:64px; align-items:start; }
+  @media (max-width:800px){ .summary-grid{ grid-template-columns:1fr; gap:36px; } }
+  .summary-grid p{ font-size:18px; color:var(--paper-dim); max-width:56ch; }
+  .summary-grid p + p{ margin-top:16px; }
+  .stat-list{ display:flex; flex-direction:column; }
+  .stat{
+    display:flex; justify-content:space-between; align-items:baseline;
+    padding:16px 0; border-top:1px solid var(--line);
+  }
+  .stat:last-child{ border-bottom:1px solid var(--line); }
+  .stat .num{ font-family:'Fraunces',serif; font-size:30px; color:var(--amber); }
+  .stat .label{ font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--paper-dim); text-transform:uppercase; letter-spacing:.06em; max-width:20ch; text-align:right; }
+
+  /* ---------- EXPERIENCE ---------- */
+  .exp-block{ display:grid; grid-template-columns:220px 1fr; gap:40px; }
+  @media (max-width:700px){ .exp-block{ grid-template-columns:1fr; gap:16px; } }
+  .exp-block .when{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--paper-dim); }
+  .exp-block h3{ font-size:24px; margin-bottom:2px; }
+  .exp-block .title{ color:var(--teal); font-family:'JetBrains Mono',monospace; font-size:13px; margin-bottom:20px; display:block; }
+  .exp-block ul{ list-style:none; display:flex; flex-direction:column; gap:14px; }
+  .exp-block li{ padding-left:20px; position:relative; color:var(--paper-dim); font-size:15px; }
+  .exp-block li::before{ content:"→"; position:absolute; left:0; color:var(--amber); }
+
+  /* ---------- PROJECTS ---------- */
+  .proj-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--line); border:1px solid var(--line); margin-top:44px; }
+  @media (max-width:760px){ .proj-grid{ grid-template-columns:1fr; } }
+  .proj-card{ background:var(--ink); padding:32px 28px; display:flex; flex-direction:column; gap:14px; transition:background .25s ease; }
+  .proj-card:hover{ background:var(--ink-2); }
+  .proj-card .tag{ font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--amber); letter-spacing:.08em; text-transform:uppercase; }
+  .proj-card h3{ font-size:21px; }
+  .proj-card p{ color:var(--paper-dim); font-size:14.5px; }
+  .proj-card .stack{ margin-top:auto; font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--paper-dim); opacity:.75; line-height:1.7; padding-top:10px; border-top:1px solid var(--line); }
+
+  /* ---------- SKILLS (layered stack) ---------- */
+  .stack-diagram{ display:flex; flex-direction:column; gap:1px; margin-top:44px; border:1px solid var(--line); }
+  .layer{ display:grid; grid-template-columns:180px 1fr; background:var(--ink-2); }
+  @media (max-width:700px){ .layer{ grid-template-columns:1fr; } }
+  .layer + .layer{ border-top:1px solid var(--line); }
+  .layer .layer-name{
+    font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--amber); padding:18px 20px; border-right:1px solid var(--line); display:flex; align-items:center;
+  }
+  @media (max-width:700px){ .layer .layer-name{ border-right:none; border-bottom:1px solid var(--line); } }
+  .layer .layer-items{ padding:18px 20px; display:flex; flex-wrap:wrap; gap:8px 10px; align-items:center; }
+  .chip{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--paper); background:var(--ink-3); border:1px solid var(--line); padding:5px 10px; border-radius:var(--radius); }
+
+  /* ---------- CERTS / EDU ---------- */
+  .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:64px; }
+  @media (max-width:700px){ .two-col{ grid-template-columns:1fr; gap:40px; } }
+  .two-col h3{ font-size:18px; margin-bottom:18px; }
+  .cert-list{ list-style:none; display:flex; flex-direction:column; gap:10px; }
+  .cert-list li{ font-size:14.5px; color:var(--paper-dim); padding-left:18px; position:relative; }
+  .cert-list li::before{ content:"◆"; position:absolute; left:0; color:var(--teal); font-size:9px; top:6px; }
+  .edu-item .school{ font-size:16px; margin-top:2px; }
+  .edu-item .when{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--paper-dim); margin-top:8px; display:block; }
+
+  /* ---------- CONTACT / FOOTER ---------- */
+  footer{ padding:80px 6vw 56px; text-align:center; }
+  footer h2{ font-size:clamp(28px,5vw,46px); margin-bottom:20px; }
+  footer .sub{ color:var(--paper-dim); max-width:44ch; margin:0 auto 36px; }
+  .contact-row{ display:flex; flex-wrap:wrap; justify-content:center; gap:14px; margin-bottom:56px; }
+  .contact-row a, .contact-row span{
+    font-family:'JetBrains Mono',monospace; font-size:13px;
+    border:1px solid var(--line); padding:10px 18px;
+    text-decoration:none; color:var(--paper); transition:border-color .2s ease, color .2s ease;
+  }
+  .contact-row a:hover{ border-color:var(--amber); color:var(--amber); }
+  footer .fine{ font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--paper-dim); opacity:.6; }
+
+  /* ---------- ASK NAV BUTTON ---------- */
+  .nav-ask{
+    font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:.05em; text-transform:uppercase;
+    background:transparent; color:var(--amber); border:1px solid var(--amber);
+    padding:8px 14px; cursor:pointer; transition:background .2s ease, color .2s ease;
+  }
+  .nav-ask:hover, .nav-ask:focus-visible{ background:var(--amber); color:var(--ink); }
+
+  /* ---------- CHAT LAUNCHER ---------- */
+  .chat-launcher{
+    position:fixed; right:24px; bottom:24px; z-index:80;
+    width:56px; height:56px; border-radius:50%;
+    background:var(--amber); color:var(--ink); border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 24px rgba(0,0,0,.4);
+    transition:transform .2s ease;
+  }
+  .chat-launcher:hover{ transform:scale(1.06); }
+  .chat-launcher svg{ width:24px; height:24px; }
+  .chat-launcher .pulse{
+    position:absolute; inset:-4px; border-radius:50%; border:1px solid var(--amber);
+    animation:pulse 2.4s ease-out infinite;
+  }
+  @keyframes pulse{ 0%{ opacity:.7; transform:scale(1);} 100%{ opacity:0; transform:scale(1.5);} }
+
+  /* ---------- CHAT PANEL ---------- */
+  .chat-panel{
+    position:fixed; right:24px; bottom:92px; z-index:80;
+    width:min(360px, calc(100vw - 48px)); height:min(480px, calc(100vh - 160px));
+    background:var(--ink-2); border:1px solid var(--line);
+    display:flex; flex-direction:column;
+    box-shadow:0 20px 60px rgba(0,0,0,.5);
+    opacity:0; transform:translateY(12px) scale(.98); pointer-events:none;
+    transition:opacity .22s ease, transform .22s ease;
+  }
+  .chat-panel.open{ opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
+
+  .chat-head{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 16px; border-bottom:1px solid var(--line);
+  }
+  .chat-head .who{ display:flex; flex-direction:column; }
+  .chat-head .who .n{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--paper); }
+  .chat-head .who .s{ font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--teal); }
+  .chat-head .who .s::before{ content:"● "; }
+  .chat-close{ background:none; border:none; color:var(--paper-dim); cursor:pointer; font-size:16px; line-height:1; padding:4px; }
+  .chat-close:hover{ color:var(--amber); }
+
+  .chat-body{ flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; }
+  .chat-body::-webkit-scrollbar{ width:6px; }
+  .chat-body::-webkit-scrollbar-thumb{ background:var(--line); }
+
+  .msg{ max-width:86%; font-size:13.5px; line-height:1.55; padding:10px 12px; border:1px solid var(--line); }
+  .msg.bot{ align-self:flex-start; background:var(--ink-3); color:var(--paper); }
+  .msg.user{ align-self:flex-end; background:var(--amber-soft); border-color:var(--amber); color:var(--paper); }
+
+  .chat-suggest{ display:flex; flex-wrap:wrap; gap:6px; padding:0 16px 12px; }
+  .chip-btn{
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--paper-dim);
+    background:var(--ink-3); border:1px solid var(--line); padding:6px 10px; cursor:pointer;
+    transition:border-color .2s ease, color .2s ease;
+  }
+  .chip-btn:hover{ border-color:var(--amber); color:var(--amber); }
+
+  .chat-input-row{ display:flex; border-top:1px solid var(--line); }
+  .chat-input-row input{
+    flex:1; background:transparent; border:none; outline:none;
+    padding:14px 16px; color:var(--paper); font-family:'Inter',sans-serif; font-size:13.5px;
+  }
+  .chat-input-row input::placeholder{ color:var(--paper-dim); }
+  .chat-input-row button{
+    background:var(--amber); border:none; color:var(--ink); padding:0 18px; cursor:pointer;
+    font-family:'JetBrains Mono',monospace; font-size:12px; text-transform:uppercase;
+  }
+  .chat-input-row button:hover{ opacity:.9; }
+
+  @media (max-width:480px){
+    .nav-ask{ display:none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav>
+    <div class="mark">Aman<span>.</span>Singh</div>
+    <ul class="nav-links">
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button class="nav-ask" id="navAsk" type="button">Ask about me</button>
+  </nav>
+
+  <section class="hero" id="overview">
+    <div class="hero-top">
+      <div>
+        <span class="eyebrow">Cloud-Native Developer / .NET · Azure · RAG</span>
+        <h1>Systems that <em>retry, cache,<br> and recover.</em></h1>
+        <p class="role-line">5+ years building production services on Azure — from resilient ASP.NET Core APIs to a full-stack RAG chatbot with its own retrieval, caching, and orchestration layer.</p>
+      </div>
+      <div class="hero-meta">
+        <a href="mailto:amansinghbisht2602@gmail.com">amansinghbisht2602@gmail.com</a>
+        <a href="tel:+918847647795">+91 88476 47795</a>
+        <a href="https://www.linkedin.com/in/aman-singh-he-him-0aa7411a0/" target="_blank" rel="noopener">LinkedIn ↗</a>
+        <span>Haldwani, Nainital, IN</span>
+      </div>
+    </div>
+
+    <div class="pipeline-frame">
+      <div class="cap">
+        <span>Request pipeline — Enterprise RAG Chatbot</span>
+        <span class="live">tracing request</span>
+      </div>
+      <svg class="pipeline" viewBox="0 0 1080 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Animated diagram of a retrieval-augmented generation request pipeline, from client through retry and circuit breaker, cache, hybrid search, reranker, to the LLM and response.">
+        <path class="edge" d="M60,100 L1020,100"/>
+        <g id="nodes"></g>
+        <circle class="packet" r="5" id="packet">
+          <animateMotion dur="7s" repeatCount="indefinite" path="M60,100 L1020,100" calcMode="linear"/>
+        </circle>
+      </svg>
+    </div>
+  </section>
+
+  <section>
+    <div class="summary-grid">
+      <div>
+        <span class="eyebrow">Summary</span>
+        <p style="margin-top:14px;">Builds and operates cloud-native systems on Microsoft Azure — containerized with Docker and Kubernetes, delivered through Azure DevOps CI/CD, and wired into managed services like App Service, Functions, Service Bus, AI Search, and OpenAI.</p>
+        <p>Azure-certified across DevOps Engineer Expert, Developer Associate, and AI Engineer Associate, with hands-on delivery of production RAG systems including custom retrieval, orchestration, and semantic caching layers.</p>
+      </div>
+      <div class="stat-list">
+        <div class="stat"><span class="num">5+</span><span class="label">Years professional experience</span></div>
+        <div class="stat"><span class="num">20%</span><span class="label">Faster API response times</span></div>
+        <div class="stat"><span class="num">15%</span><span class="label">Lift in user engagement</span></div>
+        <div class="stat"><span class="num">30–40%</span><span class="label">Fewer LLM calls per session via semantic caching</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="experience">
+    <span class="eyebrow">Experience</span>
+    <div class="exp-block" style="margin-top:32px;">
+      <div class="when">Feb 2022 — Present</div>
+      <div>
+        <h3>De Facto Infotech</h3>
+        <span class="title">Senior Software Developer</span>
+        <ul>
+          <li>Built and optimized ASP.NET Core RESTful APIs with Entity Framework and SQL Server, cutting average response times by 20% across production services.</li>
+          <li>Developed responsive Angular/Angular Material front-ends with TypeScript and HTML5/CSS3, driving a 15% lift in user engagement.</li>
+          <li>Secured API access for enterprise clients with JWT authentication, OAuth2, and OpenID Connect.</li>
+          <li>Implemented Azure Service Bus messaging to decouple services and enable real-time data processing.</li>
+          <li>Architected and deployed microservices using Docker and Kubernetes, improving deployment consistency across environments.</li>
+          <li>Managed cloud deployments across Azure App Service, API Management, and Blob Storage.</li>
+          <li>Built CI/CD pipelines in Azure DevOps, automating build and release cycles.</li>
+          <li>Built a production RAG chatbot on Azure OpenAI and Azure AI Search with semantic response caching, query rewriting, and reranker-filtered retrieval.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="projects">
+    <span class="eyebrow">Featured Projects</span>
+    <div class="proj-grid">
+
+      <div class="proj-card">
+        <span class="tag">Sole developer · End-to-end</span>
+        <h3>Enterprise RAG Chatbot Assistant</h3>
+        <p>Full-stack RAG chatbot built from the ground up — direct Azure OpenAI and Azure AI Search integration over resilient HttpClient pipelines with retry and circuit-breaker policies. Multi-stage retrieval: query rewriting, hybrid vector + keyword search, reranker-score filtering. Semantic caching in Cosmos DB with request coalescing cut redundant LLM calls by an estimated 30–40%. Full auth stack: OTP verification, JWT, BCrypt, admin approvals, activity logging.</p>
+        <div class="stack">.NET 8 · Blazor · Azure OpenAI · Azure AI Search · Cosmos DB</div>
+      </div>
+
+      <div class="proj-card">
+        <span class="tag">Sole developer · End-to-end</span>
+        <h3>Roofing Cost Estimator</h3>
+        <p>Full-stack estimation platform for roof coating projects — an Angular 20 frontend for satellite/map-based polygon roof measurement (Leaflet + Turf.js) paired with a .NET 8 Web API pricing engine that adjusts quantities for conditions, supplier, warranty, and waste factor. Cut quoting time from hours to minutes.</p>
+        <div class="stack">.NET 8 Web API · EF Core · SQL Server · Angular 20 · Leaflet · Turf.js · jsPDF</div>
+      </div>
+
+      <div class="proj-card">
+        <span class="tag">2-developer team</span>
+        <h3>Construction &amp; Trades Operations Platform</h3>
+        <p>Led a major upgrade of a multi-tier operations platform, split into Web, Business Logic, Domain, Data Access, and integration layers. Built two-way sync with Microsoft Dynamics CRM (Xrm SDK) for jobs, quotes, invoices, and staff, plus an EF6 data-warehouse component for profit &amp; loss and payroll reporting — removing hours of manual reconciliation per week.</p>
+        <div class="stack">ASP.NET MVC · .NET Framework · EF6 · Azure Storage Queues · Azure WebJobs · Dynamics CRM SDK · Serilog</div>
+      </div>
+
+      <div class="proj-card">
+        <span class="tag">Additional projects</span>
+        <h3>Roof Survey PDF Generator &amp; Appointment Platform</h3>
+        <p><strong style="color:var(--paper);">Roof Survey PDF Report Generator</strong> — automated infrared/impedance-meter survey reports with server-side image processing, cutting turnaround from hours to minutes.<br><br><strong style="color:var(--paper);">Appointment Scheduling &amp; Notification Platform</strong> — real-time admin dashboard with Azure AD SSO and automated notifications, eliminating manual status checks.</p>
+        <div class="stack">ASP.NET Core MVC · QuestPDF · iTextSharp · SignalR · Azure AD SSO · MariaDB · Azure SQL</div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="skills">
+    <span class="eyebrow">Skills — by layer</span>
+    <div class="stack-diagram">
+      <div class="layer">
+        <div class="layer-name">Cloud &amp; Infra</div>
+        <div class="layer-items">
+          <span class="chip">Azure App Service</span><span class="chip">Functions</span><span class="chip">Service Bus</span>
+          <span class="chip">Blob Storage</span><span class="chip">API Management</span><span class="chip">Docker</span>
+          <span class="chip">Kubernetes</span><span class="chip">Azure DevOps CI/CD</span>
+        </div>
+      </div>
+      <div class="layer">
+        <div class="layer-name">Generative AI / RAG</div>
+        <div class="layer-items">
+          <span class="chip">Azure OpenAI</span><span class="chip">Azure AI Search</span><span class="chip">Vector &amp; Hybrid Search</span>
+          <span class="chip">Embeddings</span><span class="chip">Semantic Caching</span><span class="chip">Query Rewriting</span>
+          <span class="chip">Reranking</span><span class="chip">Prompt Engineering</span>
+        </div>
+      </div>
+      <div class="layer">
+        <div class="layer-name">Backend</div>
+        <div class="layer-items">
+          <span class="chip">.NET / ASP.NET Core</span><span class="chip">ASP.NET MVC</span><span class="chip">C#</span>
+          <span class="chip">Blazor</span><span class="chip">Entity Framework</span><span class="chip">REST API Design</span>
+          <span class="chip">SignalR</span><span class="chip">Multithreading</span><span class="chip">Design Patterns</span>
+        </div>
+      </div>
+      <div class="layer">
+        <div class="layer-name">Frontend</div>
+        <div class="layer-items">
+          <span class="chip">Blazor</span><span class="chip">Angular</span><span class="chip">TypeScript</span>
+        </div>
+      </div>
+      <div class="layer">
+        <div class="layer-name">Data &amp; Auth</div>
+        <div class="layer-items">
+          <span class="chip">SQL Server</span><span class="chip">PostgreSQL</span><span class="chip">MongoDB</span>
+          <span class="chip">OAuth2</span><span class="chip">OpenID Connect</span><span class="chip">JWT</span>
+        </div>
+      </div>
+      <div class="layer">
+        <div class="layer-name">Resiliency</div>
+        <div class="layer-items">
+          <span class="chip">Retry Policies</span><span class="chip">Circuit Breaker</span><span class="chip">Health Checks</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="two-col">
+      <div>
+        <span class="eyebrow">Certifications</span>
+        <h3 style="margin-top:14px;">Microsoft Certified</h3>
+        <ul class="cert-list">
+          <li>DevOps Engineer Expert</li>
+          <li>Azure Developer Associate</li>
+          <li>Azure AI Engineer Associate</li>
+          <li>Power Platform Fundamentals (PL-900)</li>
+          <li>NPTEL: Programming in Python</li>
+        </ul>
+      </div>
+      <div>
+        <span class="eyebrow">Education</span>
+        <div class="edu-item" style="margin-top:14px;">
+          <h3>Master of Computer Applications (MCA)</h3>
+          <span class="school">First Class Honours</span>
+          <span class="school">Amrapali Institute of Technology and Science</span>
+          <span class="when">April 2022</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer id="contact">
+    <span class="eyebrow">Contact</span>
+    <h2 style="margin-top:14px;">Let's build something<br>resilient.</h2>
+    <p class="sub">Open to cloud-native and AI-engineering roles. Reach out directly — no forms, no gatekeeping.</p>
+    <div class="contact-row">
+      <a href="mailto:amansinghbisht2602@gmail.com">amansinghbisht2602@gmail.com</a>
+      <a href="tel:+918847647795">+91 88476 47795</a>
+      <a href="https://www.linkedin.com/in/aman-singh-he-him-0aa7411a0/" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+    <div class="fine">Haldwani, Nainital, India</div>
+  </footer>
+
+  <button class="chat-launcher" id="chatLauncher" type="button" aria-label="Ask a question about Aman">
+    <span class="pulse"></span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  </button>
+
+  <div class="chat-panel" id="chatPanel" role="dialog" aria-label="Chat about Aman Singh" aria-hidden="true">
+    <div class="chat-head">
+      <div class="who">
+        <span class="n">Ask about Aman</span>
+        <span class="s">answers pulled from his resume</span>
+      </div>
+      <button class="chat-close" id="chatClose" aria-label="Close chat">✕</button>
+    </div>
+    <div class="chat-body" id="chatBody"></div>
+    <div class="chat-suggest" id="chatSuggest"></div>
+    <form class="chat-input-row" id="chatForm">
+      <input id="chatInput" type="text" placeholder="e.g. What has he built with Azure OpenAI?" autocomplete="off">
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+</div>
+
+<script>
+  // Build pipeline nodes programmatically so labels/positions stay in sync
+  const nodes = [
+    {x:60,  y:100, t:"Client",        s:"request"},
+    {x:230, y:100, t:"Retry / Breaker", s:"resiliency"},
+    {x:400, y:100, t:"Cache",         s:"Cosmos DB · embedding sim"},
+    {x:570, y:100, t:"Hybrid Search", s:"vector + keyword"},
+    {x:740, y:100, t:"Reranker",      s:"relevance filter"},
+    {x:910, y:100, t:"Azure OpenAI",  s:"LLM"},
+    {x:1020,y:100, t:"Response",      s:"citations"}
+  ];
+  const svgNS = "http://www.w3.org/2000/svg";
+  const g = document.getElementById("nodes");
+  nodes.forEach((n,i) => {
+    const c = document.createElementNS(svgNS,"circle");
+    c.setAttribute("cx",n.x); c.setAttribute("cy",n.y); c.setAttribute("r", i===0||i===nodes.length-1?7:9);
+    c.setAttribute("class","node-circle");
+    c.setAttribute("data-x", n.x);
+    g.appendChild(c);
+
+    const label = document.createElementNS(svgNS,"text");
+    label.setAttribute("x", n.x); label.setAttribute("y", n.y-22);
+    label.setAttribute("text-anchor","middle");
+    label.setAttribute("class","node-label");
+    label.textContent = n.t;
+    g.appendChild(label);
+
+    const sub = document.createElementNS(svgNS,"text");
+    sub.setAttribute("x", n.x); sub.setAttribute("y", n.y+30);
+    sub.setAttribute("text-anchor","middle");
+    sub.setAttribute("class","node-sub");
+    sub.textContent = n.s;
+    g.appendChild(sub);
+  });
+
+  const circles = Array.from(document.querySelectorAll(".node-circle"));
+  const packet = document.getElementById("packet");
+  const total = 1020 - 60;
+
+  function tick(){
+    const box = packet.getBBox ? packet.getBoundingClientRect() : null;
+    // read current cx from the animateMotion transform via getCTM fallback:
+    const matrix = packet.getCTM ? null : null;
+  }
+
+  // Simpler approach: poll packet's transformed position each frame
+  function loop(){
+    const pt = packet.getBoundingClientRect();
+    const svgRect = document.querySelector("svg.pipeline").getBoundingClientRect();
+    const relX = (pt.left + pt.width/2 - svgRect.left) / svgRect.width * 1080;
+    circles.forEach(c => {
+      const cx = parseFloat(c.getAttribute("data-x"));
+      if (Math.abs(cx - relX) < 28) { c.classList.add("active"); }
+      else { c.classList.remove("active"); }
+    });
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  // Reveal-on-scroll for sections
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.style.opacity = 1; e.target.style.transform = "translateY(0)"; }
+    });
+  }, {threshold:0.12});
+  document.querySelectorAll("section, footer").forEach(s=>{
+    s.style.opacity = 0;
+    s.style.transform = "translateY(16px)";
+    s.style.transition = "opacity .6s ease, transform .6s ease";
+    io.observe(s);
+  });
+</script>
+
+<script>
+(function(){
+  // ---- Knowledge base built from Aman's resume ----
+  const KB = [
+    { id:"role", keys:["role","title","job","position","what do you do","who are you","who is aman"],
+      a:"Aman is a Cloud-Native Developer working in .NET / ASP.NET Core and Azure, with 5+ years of experience. He's currently a Senior Software Developer at De Facto Infotech, and has hands-on production experience building RAG (retrieval-augmented generation) systems on Azure OpenAI." },
+    { id:"experience", keys:["experience","years","de facto","current job","company","work history","employer"],
+      a:"He's been at De Facto Infotech since Feb 2022 as a Senior Software Developer — building resilient ASP.NET Core APIs, Angular front-ends, microservices on Docker/Kubernetes, Azure DevOps CI/CD pipelines, and a production RAG chatbot on Azure OpenAI and Azure AI Search." },
+    { id:"rag", keys:["rag","chatbot","openai","azure ai search","retrieval","llm","genai","generative ai","cache","caching"],
+      a:"His flagship project is an Enterprise RAG Chatbot Assistant — built solo, end-to-end, with no orchestration framework. It does conversational query rewriting, hybrid vector + keyword search, reranker-score filtering, and semantic response caching in Cosmos DB with request coalescing — cutting redundant LLM calls by an estimated 30–40%." },
+    { id:"skills", keys:["skills","tech stack","technologies","tools","languages","stack"],
+      a:"Cloud & infra: Azure App Service, Functions, Service Bus, Docker, Kubernetes, Azure DevOps. Backend: .NET 8/ASP.NET Core, C#, Entity Framework. Frontend: Blazor, Angular, TypeScript. GenAI/RAG: Azure OpenAI, Azure AI Search, embeddings, semantic caching. Data & auth: SQL Server, PostgreSQL, MongoDB, OAuth2/OpenID Connect/JWT." },
+    { id:"projects", keys:["projects","portfolio","built","work","roofing","estimator","construction","survey","appointment"],
+      a:"Besides the RAG chatbot: a full-stack Roofing Cost Estimator (Angular + Leaflet map-based measurement, .NET 8 pricing API), an Enterprise Construction & Trades Operations Platform (2-dev team, Dynamics CRM integration), a Roof Survey PDF Report Generator, and an Appointment Scheduling & Notification Platform with SignalR and Azure AD SSO." },
+    { id:"certs", keys:["certification","certified","certificate","azure certified","microsoft certified"],
+      a:"Microsoft Certified: DevOps Engineer Expert, Azure Developer Associate, Azure AI Engineer Associate, and Power Platform Fundamentals (PL-900). He also completed an NPTEL course in Programming in Python." },
+    { id:"education", keys:["education","degree","mca","college","university","school"],
+      a:"He holds a Master of Computer Applications (MCA), First Class Honours, from Amrapali Institute of Technology and Science, completed April 2022." },
+    { id:"impact", keys:["impact","results","metrics","numbers","achievements","improve","reduced","increased"],
+      a:"Some concrete numbers: 20% faster average API response times, a 15% lift in user engagement from his Angular front-end work, and roughly 30–40% fewer LLM calls per RAG session through semantic caching and request coalescing." },
+    { id:"contact", keys:["contact","email","phone","reach","hire","available","linkedin","location","based"],
+      a:"You can reach Aman at amansinghbisht2602@gmail.com, call +91 88476 47795, or connect on LinkedIn (Aman Singh) — links are in the header and footer of this page. He's based in Haldwani, Nainital, India." },
+    { id:"resilience", keys:["resilient","resiliency","retry","circuit breaker","health check","reliability"],
+      a:"He builds resiliency in from the ground up — retry policies, circuit-breaker patterns, and health checks around his HttpClient pipelines, which is exactly what the animated diagram at the top of this page is showing." }
+  ];
+
+  const FALLBACK = "I don't have a canned answer for that one — but you can ask Aman directly at amansinghbisht2602@gmail.com, or try asking about his experience, RAG project, skills, or certifications.";
+  const SUGGESTIONS = ["What's his current role?","Tell me about the RAG chatbot","What are his certifications?","How do I contact him?"];
+
+  function bestMatch(q){
+    const text = q.toLowerCase();
+    let best = null, bestScore = 0;
+    KB.forEach(entry=>{
+      let score = 0;
+      entry.keys.forEach(k=>{ if(text.includes(k)) score += k.split(" ").length; });
+      if(score > bestScore){ bestScore = score; best = entry; }
+    });
+    return bestScore > 0 ? best.a : FALLBACK;
+  }
+
+  const launcher = document.getElementById("chatLauncher");
+  const navAsk = document.getElementById("navAsk");
+  const panel = document.getElementById("chatPanel");
+  const closeBtn = document.getElementById("chatClose");
+  const body = document.getElementById("chatBody");
+  const suggestWrap = document.getElementById("chatSuggest");
+  const form = document.getElementById("chatForm");
+  const input = document.getElementById("chatInput");
+
+  function addMsg(text, who){
+    const div = document.createElement("div");
+    div.className = "msg " + who;
+    div.textContent = text;
+    body.appendChild(div);
+    body.scrollTop = body.scrollHeight;
+  }
+
+  function renderSuggestions(){
+    suggestWrap.innerHTML = "";
+    SUGGESTIONS.forEach(s=>{
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "chip-btn"; b.textContent = s;
+      b.addEventListener("click", ()=>{ ask(s); });
+      suggestWrap.appendChild(b);
+    });
+  }
+
+  function ask(q){
+    addMsg(q, "user");
+    setTimeout(()=>{ addMsg(bestMatch(q), "bot"); }, 260);
+  }
+
+  function openChat(){
+    panel.classList.add("open");
+    panel.setAttribute("aria-hidden","false");
+    if(!body.childElementCount){
+      addMsg("Hi — I can answer quick questions about Aman's experience, skills, and projects. What do you want to know?", "bot");
+      renderSuggestions();
+    }
+    input.focus();
+  }
+  function closeChat(){
+    panel.classList.remove("open");
+    panel.setAttribute("aria-hidden","true");
+  }
+
+  launcher.addEventListener("click", ()=> panel.classList.contains("open") ? closeChat() : openChat());
+  navAsk.addEventListener("click", openChat);
+  closeBtn.addEventListener("click", closeChat);
+
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    const val = input.value.trim();
+    if(!val) return;
+    ask(val);
+    input.value = "";
+  });
+})();
+</script>
+
+</body>
+</html>
